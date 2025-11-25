@@ -59,6 +59,10 @@ pause={
 ]
 }
 
+[autoload]
+
+GameState="*res://scripts/GameState.gd"
+
 [rendering]
 
 renderer/rendering_method="forward_plus"

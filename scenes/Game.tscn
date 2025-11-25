@@ -1,0 +1,16 @@
+[gd_scene load_steps=5 format=3 uid="uid://c8x2k5m9n7p3q"]
+
+[ext_resource type="Script" path="res://scripts/Game.gd" id="1_game"]
+[ext_resource type="PackedScene" uid="uid://djq5v8h3n2p7w" path="res://scenes/Player.tscn" id="2_player"]
+[ext_resource type="PackedScene" uid="uid://d5x3k8m2n4p7q" path="res://scenes/HUD.tscn" id="3_hud"]
+[ext_resource type="PackedScene" uid="uid://b8h5k2x9m3p1n" path="res://scenes/EnemySpawner.tscn" id="4_spawner"]
+
+[node name="Game" type="Node2D"]
+script = ExtResource("1_game")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(960, 540)
+
+[node name="EnemySpawner" parent="." instance=ExtResource("4_spawner")]
+
+[node name="HUD" parent="." instance=ExtResource("3_hud")]

@@ -2,7 +2,27 @@
   "permissions": {
     "allow": [
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(\"C:\\tools\\Godot\\Godotc.exe\" --headless --path \"C:\\proj\\inkstorm\" --quit)",
+      "Bash(/c/tools/Godot/Godotc.exe:*)",
+      "Bash(cmd.exe /c \"C:\\tools\\Godot\\Godotc.exe --headless --path C:\\proj\\inkstorm --quit\")",
+      "Bash(c:/tools/Godot/Godotc.exe:*)",
+      "Bash(export PATH=\"$PATH:/c/tools/Godot\":*)",
+      "Bash(Godotc.exe:*)",
+      "Bash(powershell.exe -Command \"& ''c:/tools/Godot/Godotc.exe'' --headless --path ''c:/proj/inkstorm'' --quit\")",
+      "Bash(cmd.exe /c \"C:\\tools\\Godot\\Godotc.exe --headless --path C:\\proj\\inkstorm --quit && echo DONE || echo FAILED\")",
+      "Bash(echo:*)",
+      "Bash(winpty //c/tools/Godot/Godotc.exe:*)",
+      "Bash(winpty c:/tools/Godot/Godotc.exe:*)",
+      "Bash(cmd.exe /c /tmp/run_godot.bat)",
+      "Bash(powershell.exe -Command \"& ''C:\\tools\\Godot\\Godotc.exe'' --headless --path ''C:\\proj\\inkstorm'' --quit; Write-Host ''Exit code:'' $LASTEXITCODE\")",
+      "Bash(powershell.exe -Command \"C:\\tools\\Godot\\Godotc.exe --headless --path C:\\proj\\inkstorm --quit\")",
+      "Bash(cmd.exe /c dir:*)",
+      "Bash(cmd.exe /c \"cd C:\\proj\\inkstorm && C:\\tools\\Godot\\Godotc.exe --headless --path . --quit && echo SUCCESS || echo FAILED\")",
+      "Bash(test:*)",
+      "Bash(cmd.exe /c echo \"Testing cmd.exe\")",
+      "Bash(Get-Location)",
+      "Bash(C:toolsGodotGodotc.exe --headless --path \"C:\\proj\\inkstorm\" --quit)"
     ],
     "deny": [],
     "ask": []

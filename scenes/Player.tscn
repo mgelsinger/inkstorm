@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://djq5v8h3n2p7w"]
+
+[ext_resource type="Script" path="res://scripts/Player.gd" id="1_player"]
+
+[node name="Player" type="CharacterBody2D"]
+script = ExtResource("1_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0, 0.5, 1, 1)
+
+[node name="ColorRect" type="ColorRect" parent="Sprite2D"]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0, 0.5, 1, 1)
