@@ -1,17 +1,53 @@
 extends CharacterBody2D
 
-const SPEED: float = 300.0
-const DASH_SPEED: float = 600.0
-const DASH_DURATION: float = 0.2
+# Movement properties
+@export var move_speed: float = 400.0
+@export var acceleration: float = 1500.0
+@export var friction: float = 1200.0
 
+# Dash properties
+@export var dash_speed_multiplier: float = 2.5
+@export var dash_duration: float = 0.2
+@export var dash_cooldown: float = 0.5
+@export var invulnerable_during_dash: bool = true
+
+# Ink trail properties
+@export var trail_spawn_interval: float = 0.05
+@export var trail_lifetime: float = 0.5
+
+# Preload ink trail scene
+const INK_TRAIL_SEGMENT = preload("res://scenes/InkTrailSegment.tscn")
+
+# State variables
 var is_dashing: bool = false
+var is_invulnerable: bool = false
 var dash_timer: float = 0.0
+var dash_cooldown_timer: float = 0.0
+var dash_direction: Vector2 = Vector2.ZERO
+var trail_spawn_timer: float = 0.0
+
+# Visual reference
+@onready var sprite: Sprite2D = $Sprite2D
 
 func _ready() -> void:
 	# Register with GameState
 	GameState.set_player(self)
 
 func _physics_process(delta: float) -> void:
+	# Update cooldown timer
+	if dash_cooldown_timer > 0:
+		dash_cooldown_timer -= delta
+
+	# Handle dash state
+	if is_dashing:
+		_process_dash(delta)
+	else:
+		_process_normal_movement(delta)
+
+	# Apply movement
+	move_and_slide()
+
+func _process_normal_movement(delta: float) -> void:
 	var input_vector := Vector2.ZERO
 
 	# Get input
@@ -22,19 +58,72 @@ func _physics_process(delta: float) -> void:
 	if input_vector.length() > 0:
 		input_vector = input_vector.normalized()
 
-	# Handle dash
-	if Input.is_action_just_pressed("dash") and not is_dashing:
-		is_dashing = true
-		dash_timer = DASH_DURATION
+	# Handle dash input
+	if Input.is_action_just_pressed("dash") and dash_cooldown_timer <= 0:
+		if input_vector.length() > 0:
+			_start_dash(input_vector)
+			return
 
-	if is_dashing:
-		dash_timer -= delta
-		if dash_timer <= 0:
-			is_dashing = false
-			dash_timer = 0.0
+	# Apply acceleration or friction
+	if input_vector.length() > 0:
+		velocity = velocity.move_toward(input_vector * move_speed, acceleration * delta)
+	else:
+		velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
 
-	# Apply movement
-	var current_speed = DASH_SPEED if is_dashing else SPEED
-	velocity = input_vector * current_speed
+func _start_dash(direction: Vector2) -> void:
+	is_dashing = true
+	is_invulnerable = invulnerable_during_dash
+	dash_timer = dash_duration
+	dash_direction = direction.normalized()
+	velocity = dash_direction * move_speed * dash_speed_multiplier
+	trail_spawn_timer = 0.0
 
-	move_and_slide()
+	# Visual feedback - make slightly transparent during dash
+	if sprite:
+		sprite.modulate.a = 0.7
+
+func _process_dash(delta: float) -> void:
+	dash_timer -= delta
+
+	# Spawn ink trail segments
+	trail_spawn_timer -= delta
+	if trail_spawn_timer <= 0:
+		_spawn_ink_trail()
+		trail_spawn_timer = trail_spawn_interval
+
+	# Maintain dash velocity
+	velocity = dash_direction * move_speed * dash_speed_multiplier
+
+	# Check if dash is complete
+	if dash_timer <= 0:
+		_end_dash()
+
+func _end_dash() -> void:
+	is_dashing = false
+	is_invulnerable = false
+	dash_cooldown_timer = dash_cooldown
+
+	# Return velocity to normal range
+	if velocity.length() > move_speed:
+		velocity = velocity.normalized() * move_speed
+
+	# Restore visual
+	if sprite:
+		sprite.modulate.a = 1.0
+
+func _spawn_ink_trail() -> void:
+	var trail_segment = INK_TRAIL_SEGMENT.instantiate()
+
+	# Add to Game scene (parent's parent should be Game)
+	var game_scene = get_parent()
+	if game_scene:
+		game_scene.add_child(trail_segment)
+		trail_segment.global_position = global_position
+		trail_segment.rotation = dash_direction.angle()
+
+		# Set lifetime
+		if trail_segment.has_method("set_lifetime"):
+			trail_segment.set_lifetime(trail_lifetime)
+
+func is_player_invulnerable() -> bool:
+	return is_invulnerable
