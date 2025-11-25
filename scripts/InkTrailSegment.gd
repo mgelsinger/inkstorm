@@ -2,8 +2,8 @@ extends Area2D
 
 @export var lifetime: float = 0.5
 @export var initial_alpha: float = 0.8
-@export var ink_damage: int = 1
-@export var damage_interval: float = 0.2
+@export var ink_damage: int = 2
+@export var damage_interval: float = 0.1
 
 var age: float = 0.0
 var enemies_in_trail: Dictionary = {}  # enemy: last_damage_time
@@ -45,6 +45,9 @@ func _process(delta: float) -> void:
 
 func set_lifetime(new_lifetime: float) -> void:
 	lifetime = new_lifetime
+
+func set_damage(damage: int) -> void:
+	ink_damage = damage
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.has_method("take_damage"):

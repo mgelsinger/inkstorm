@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/InkTrailSegment.gd" id="1_trail"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_trail"]
-size = Vector2(40, 16)
+size = Vector2(80, 60)
 
 [node name="InkTrailSegment" type="Area2D"]
 collision_layer = 4
@@ -16,22 +16,22 @@ shape = SubResource("RectangleShape2D_trail")
 [node name="Visual" type="Node2D" parent="."]
 
 [node name="Stroke1" type="ColorRect" parent="Visual"]
-offset_left = -20.0
-offset_top = -4.0
-offset_right = 20.0
-offset_bottom = 4.0
+offset_left = -40.0
+offset_top = -25.0
+offset_right = 40.0
+offset_bottom = 25.0
 color = Color(0.2, 0.1, 0.3, 0.8)
 
 [node name="Stroke2" type="ColorRect" parent="Visual"]
-offset_left = -16.0
-offset_top = -6.0
-offset_right = 16.0
-offset_bottom = 6.0
+offset_left = -35.0
+offset_top = -20.0
+offset_right = 35.0
+offset_bottom = 20.0
 color = Color(0.3, 0.15, 0.4, 0.6)
 
 [node name="Stroke3" type="ColorRect" parent="Visual"]
-offset_left = -12.0
-offset_top = -8.0
-offset_right = 12.0
-offset_bottom = 8.0
+offset_left = -30.0
+offset_top = -15.0
+offset_right = 30.0
+offset_bottom = 15.0
 color = Color(0.4, 0.2, 0.5, 0.4)

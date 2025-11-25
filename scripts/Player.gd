@@ -14,10 +14,14 @@ extends CharacterBody2D
 @export var dash_duration: float = 0.2
 @export var dash_cooldown: float = 0.5
 @export var invulnerable_during_dash: bool = true
+@export var dash_contact_damage: int = 2
+@export var dash_pulse_damage: int = 3
+@export var dash_pulse_radius: float = 50.0
 
 # Ink trail properties
 @export var trail_spawn_interval: float = 0.05
 @export var trail_lifetime: float = 0.5
+@export var ink_trail_damage: int = 2
 
 # Preload ink trail scene
 const INK_TRAIL_SEGMENT = preload("res://scenes/InkTrailSegment.tscn")
@@ -33,9 +37,11 @@ var dash_timer: float = 0.0
 var dash_cooldown_timer: float = 0.0
 var dash_direction: Vector2 = Vector2.ZERO
 var trail_spawn_timer: float = 0.0
+var dash_hit_enemies: Dictionary = {}  # Track enemies hit this dash to avoid multi-hit
 
 # Visual reference
 @onready var sprite: Sprite2D = $Sprite2D
+@onready var dash_hit_area: Area2D = $DashHitArea
 
 func _ready() -> void:
 	hp = max_hp
@@ -96,6 +102,11 @@ func _start_dash(direction: Vector2) -> void:
 	dash_direction = direction.normalized()
 	velocity = dash_direction * move_speed * dash_speed_multiplier
 	trail_spawn_timer = 0.0
+	dash_hit_enemies.clear()
+
+	# Enable dash hit area
+	if dash_hit_area:
+		dash_hit_area.monitoring = true
 
 	# Visual feedback - make slightly transparent during dash
 	if sprite:
@@ -103,6 +114,13 @@ func _start_dash(direction: Vector2) -> void:
 
 func _process_dash(delta: float) -> void:
 	dash_timer -= delta
+
+	# Damage enemies in dash hitbox
+	if dash_hit_area:
+		for body in dash_hit_area.get_overlapping_bodies():
+			if body.has_method("take_damage") and body not in dash_hit_enemies:
+				body.take_damage(dash_contact_damage)
+				dash_hit_enemies[body] = true
 
 	# Spawn ink trail segments
 	trail_spawn_timer -= delta
@@ -121,6 +139,13 @@ func _end_dash() -> void:
 	is_dashing = false
 	is_invulnerable = false
 	dash_cooldown_timer = dash_cooldown
+
+	# Disable dash hit area
+	if dash_hit_area:
+		dash_hit_area.monitoring = false
+
+	# Create dash end pulse
+	_create_dash_pulse()
 
 	# Return velocity to normal range
 	if velocity.length() > move_speed:
@@ -143,6 +168,26 @@ func _spawn_ink_trail() -> void:
 		# Set lifetime
 		if trail_segment.has_method("set_lifetime"):
 			trail_segment.set_lifetime(trail_lifetime)
+		# Pass damage value to trail
+		if trail_segment.has_method("set_damage"):
+			trail_segment.set_damage(ink_trail_damage)
+
+func _create_dash_pulse() -> void:
+	# Use the dash hit area for a brief pulse check
+	if not dash_hit_area:
+		return
+
+	# Temporarily enable with larger radius for pulse
+	var original_monitoring = dash_hit_area.monitoring
+	dash_hit_area.monitoring = true
+
+	# Damage all overlapping enemies
+	for body in dash_hit_area.get_overlapping_bodies():
+		if body.has_method("take_damage"):
+			body.take_damage(dash_pulse_damage)
+
+	# Restore original state
+	dash_hit_area.monitoring = original_monitoring
 
 func is_player_invulnerable() -> bool:
 	return is_invulnerable or damage_invulnerability_timer > 0

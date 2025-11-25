@@ -1,9 +1,11 @@
 extends CharacterBody2D
 
-@export var max_hp: int = 3
+@export var max_hp: int = 2
 @export var move_speed: float = 100.0
 @export var contact_damage: int = 1
 @export var damage_cooldown: float = 1.0
+
+const INK_SPLATTER = preload("res://scenes/InkSplatter.tscn")
 
 var hp: int
 var last_damage_time: float = 0.0
@@ -39,9 +41,18 @@ func _physics_process(delta: float) -> void:
 func take_damage(amount: int) -> void:
 	hp -= amount
 
-	# Visual feedback - flash red
+	# Visual feedback - flash white and scale pulse
 	if sprite:
-		sprite.modulate = Color(1.5, 0.5, 0.5, 1.0)
+		var original_scale = scale
+		sprite.modulate = Color(2.0, 2.0, 2.0, 1.0)
+		var tween = create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(self, "scale", original_scale * 1.2, 0.05)
+		tween.tween_callback(func():
+			var tween2 = create_tween()
+			tween2.tween_property(self, "scale", original_scale, 0.05)
+		).set_delay(0.05)
+
 		await get_tree().create_timer(0.1).timeout
 		if is_instance_valid(self):
 			sprite.modulate = Color(1, 0, 0, 1)
@@ -50,6 +61,11 @@ func take_damage(amount: int) -> void:
 		die()
 
 func die() -> void:
+	# Spawn ink splatter effect
+	var splatter = INK_SPLATTER.instantiate()
+	get_parent().add_child(splatter)
+	splatter.global_position = global_position
+
 	# Death animation - scale down and fade out
 	if sprite:
 		var tween = create_tween()
