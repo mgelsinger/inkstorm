@@ -1,0 +1,30 @@
+# Godot 4+ specific ignores
+.godot/
+.import/
+export.cfg
+export_presets.cfg
+
+# Imported translations (automatically generated from CSV files)
+*.translation
+
+# Mono-specific ignores (C# - not needed for this project but included for completeness)
+.mono/
+data_*/
+mono_crash.*.json
+
+# System/tool-specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Export templates
+*.exe
+*.pck
+*.zip
+*.dmg
+*.app
