@@ -17,8 +17,12 @@ func _process(delta: float) -> void:
 	var milliseconds = int((time - int(time)) * 100)
 	time_label.text = "Time: %02d:%02d.%02d" % [minutes, seconds, milliseconds]
 
-	# Update HP (placeholder for now)
-	hp_label.text = "HP: 100"
+	# Update HP display
+	var player = GameState.get_player()
+	if player and player.has_method("get") and "hp" in player and "max_hp" in player:
+		hp_label.text = "HP: %d/%d" % [player.hp, player.max_hp]
+	else:
+		hp_label.text = "HP: --"
 
 	# Handle pause input
 	if Input.is_action_just_pressed("pause"):

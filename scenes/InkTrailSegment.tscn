@@ -1,9 +1,17 @@
-[gd_scene load_steps=2 format=3 uid="uid://c5m8x3n7p2k9q"]
+[gd_scene load_steps=3 format=3 uid="uid://c5m8x3n7p2k9q"]
 
 [ext_resource type="Script" path="res://scripts/InkTrailSegment.gd" id="1_trail"]
 
-[node name="InkTrailSegment" type="Node2D"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_trail"]
+size = Vector2(40, 16)
+
+[node name="InkTrailSegment" type="Area2D"]
+collision_layer = 4
+collision_mask = 2
 script = ExtResource("1_trail")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_trail")
 
 [node name="Visual" type="Node2D" parent="."]
 

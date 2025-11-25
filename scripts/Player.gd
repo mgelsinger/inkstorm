@@ -1,5 +1,9 @@
 extends CharacterBody2D
 
+# Health properties
+@export var max_hp: int = 10
+@export var damage_invulnerability_duration: float = 1.0
+
 # Movement properties
 @export var move_speed: float = 400.0
 @export var acceleration: float = 1500.0
@@ -18,6 +22,10 @@ extends CharacterBody2D
 # Preload ink trail scene
 const INK_TRAIL_SEGMENT = preload("res://scenes/InkTrailSegment.tscn")
 
+# Health state variables
+var hp: int
+var damage_invulnerability_timer: float = 0.0
+
 # State variables
 var is_dashing: bool = false
 var is_invulnerable: bool = false
@@ -30,13 +38,24 @@ var trail_spawn_timer: float = 0.0
 @onready var sprite: Sprite2D = $Sprite2D
 
 func _ready() -> void:
+	hp = max_hp
+	# Set collision layers: Player is on layer 1, detects layer 2 (Enemies)
+	collision_layer = 1
+	collision_mask = 2
 	# Register with GameState
 	GameState.set_player(self)
 
 func _physics_process(delta: float) -> void:
-	# Update cooldown timer
+	# Update timers
 	if dash_cooldown_timer > 0:
 		dash_cooldown_timer -= delta
+
+	if damage_invulnerability_timer > 0:
+		damage_invulnerability_timer -= delta
+		# Flash sprite during damage invulnerability
+		sprite.modulate.a = 0.5 if int(damage_invulnerability_timer * 10) % 2 == 0 else 1.0
+	elif not is_dashing:
+		sprite.modulate.a = 1.0
 
 	# Handle dash state
 	if is_dashing:
@@ -126,4 +145,27 @@ func _spawn_ink_trail() -> void:
 			trail_segment.set_lifetime(trail_lifetime)
 
 func is_player_invulnerable() -> bool:
-	return is_invulnerable
+	return is_invulnerable or damage_invulnerability_timer > 0
+
+func take_damage(amount: int) -> void:
+	if is_player_invulnerable():
+		return
+
+	hp -= amount
+	damage_invulnerability_timer = damage_invulnerability_duration
+
+	# Visual feedback
+	if sprite:
+		sprite.modulate = Color(1.5, 0.5, 0.5, 1.0)
+
+	# Check for death
+	if hp <= 0:
+		hp = 0
+		die()
+
+func die() -> void:
+	print("Player died!")
+	GameState.end_run()
+	# For now, just restart the scene
+	await get_tree().create_timer(1.0).timeout
+	get_tree().reload_current_scene()
