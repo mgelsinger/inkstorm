@@ -2,6 +2,8 @@ extends CanvasLayer
 
 @onready var time_label: Label = $MarginContainer/VBoxContainer/TimeLabel
 @onready var hp_label: Label = $MarginContainer/VBoxContainer/HPLabel
+@onready var level_label: Label = $MarginContainer/VBoxContainer/LevelLabel
+@onready var xp_label: Label = $MarginContainer/VBoxContainer/XPLabel
 @onready var pause_overlay: ColorRect = $PauseOverlay
 @onready var resume_button: Button = $PauseOverlay/CenterContainer/VBoxContainer/ResumeButton
 
@@ -23,6 +25,18 @@ func _process(delta: float) -> void:
 		hp_label.text = "HP: %d/%d" % [player.hp, player.max_hp]
 	else:
 		hp_label.text = "HP: --"
+
+	# Update Level display
+	if player and "level" in player:
+		level_label.text = "Level: %d" % player.level
+	else:
+		level_label.text = "Level: --"
+
+	# Update XP display
+	if player and "xp" in player and "xp_to_next_level" in player:
+		xp_label.text = "XP: %d/%d" % [player.xp, player.xp_to_next_level]
+	else:
+		xp_label.text = "XP: --"
 
 	# Handle pause input
 	if Input.is_action_just_pressed("pause"):

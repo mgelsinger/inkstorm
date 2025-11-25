@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+signal level_up(new_level: int)
+
 # Health properties
 @export var max_hp: int = 10
 @export var damage_invulnerability_duration: float = 1.0
@@ -23,11 +25,20 @@ extends CharacterBody2D
 @export var trail_lifetime: float = 0.5
 @export var ink_trail_damage: int = 2
 
+# Progression properties
+@export var base_xp_to_level: int = 5
+@export var xp_growth_per_level: int = 2
+
 # Preload ink trail scene
 const INK_TRAIL_SEGMENT = preload("res://scenes/InkTrailSegment.tscn")
 
 # Health state variables
 var hp: int
+
+# Progression state variables
+var level: int = 1
+var xp: int = 0
+var xp_to_next_level: int
 var damage_invulnerability_timer: float = 0.0
 
 # State variables
@@ -45,6 +56,7 @@ var dash_hit_enemies: Dictionary = {}  # Track enemies hit this dash to avoid mu
 
 func _ready() -> void:
 	hp = max_hp
+	xp_to_next_level = base_xp_to_level
 	# Set collision layers: Player is on layer 1, detects layer 2 (Enemies)
 	collision_layer = 1
 	collision_mask = 2
@@ -214,3 +226,15 @@ func die() -> void:
 	# For now, just restart the scene
 	await get_tree().create_timer(1.0).timeout
 	get_tree().reload_current_scene()
+
+func collect_xp(amount: int) -> void:
+	xp += amount
+	check_level_up()
+
+func check_level_up() -> void:
+	while xp >= xp_to_next_level:
+		xp -= xp_to_next_level
+		level += 1
+		xp_to_next_level = base_xp_to_level + (level - 1) * xp_growth_per_level
+		print("Level up! Now level ", level)
+		emit_signal("level_up", level)

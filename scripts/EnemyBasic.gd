@@ -6,6 +6,7 @@ extends CharacterBody2D
 @export var damage_cooldown: float = 1.0
 
 const INK_SPLATTER = preload("res://scenes/InkSplatter.tscn")
+const XP_PICKUP = preload("res://scenes/XPPickup.tscn")
 
 var hp: int
 var last_damage_time: float = 0.0
@@ -65,6 +66,11 @@ func die() -> void:
 	var splatter = INK_SPLATTER.instantiate()
 	get_parent().add_child(splatter)
 	splatter.global_position = global_position
+
+	# Spawn XP pickup
+	var xp = XP_PICKUP.instantiate()
+	get_parent().add_child(xp)
+	xp.global_position = global_position
 
 	# Death animation - scale down and fade out
 	if sprite:
